@@ -48,6 +48,10 @@ module.exports = (folder, options) => {
                         .pop()
                         .split(/("\)|'\))/g)[0];
 
+                    if (!filter(req, options.filters)) {
+                        continue;
+                    };
+
                     //Check if it's a local import, and ignore if necessary
                     if (RegExp(/\.\.\/|\.\//g).test(req)) {
                         if (options.allowLocalReqs === true) {
@@ -59,8 +63,6 @@ module.exports = (folder, options) => {
                         };
                     } else {
                         if (filter(req, options.filters)) {
-                            console.log(filter(req, options.filters), " - ", req, " - ", fullName);
-
                             cmdObj.requirements.push(req);
                         };
                     };
@@ -117,16 +119,14 @@ function verifyFileType(input, types) {
 };
 
 function filter(input, filters) {
-    var valid = true;
-
     if (filters) {
         for (const filter of filters) {
             //Check the item against our list of disallowed filters
             if (RegExp(filter).test(input)) {
-                valid = false;
+                return false;
             };
         };
     };
 
-    return valid;
+    return true;
 };
