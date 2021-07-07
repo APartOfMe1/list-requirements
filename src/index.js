@@ -8,6 +8,8 @@ module.exports = (folder, options) => {
             return reject("There was no input folder specified");
         };
 
+        const startingTime = new Date().valueOf();
+
         //Set the options if they don't exist
         options = options ? options : {};
 
@@ -19,18 +21,28 @@ module.exports = (folder, options) => {
 
         output.modules = [];
 
+        output.filesScanned = 0;
+
+        output.matchingFiles = 0;
+
         //Run through the directory
         klaw(path.resolve(folder)).on("data", async c => {
+            output.filesScanned++;
+
             //Make sure the file is a type we want to check
-            if (!verifyFileType(c.path, options.fileTypes)) {
+            const fileType = verifyFileType(c.path, options.fileTypes);
+            
+            if (!fileType) {
                 return;
             };
+
+            output.matchingFiles++;
 
             //Get the full name of the file, with the extension
             const fullName = c.path.split("\\").pop();
 
             const cmdObj = {
-                "name": fullName.split(".js")[0],
+                "name": fullName.split("." + fileType)[0],
                 "fullName": fullName,
                 "filePath": c.path,
                 "requirements": []
@@ -79,12 +91,21 @@ module.exports = (folder, options) => {
                 fs.writeFileSync(outputPath, JSON.stringify(output));
 
                 return resolve({
-                    path: outputPath,
-                    totalFiles: output.modules.length,
+                    outputPath: outputPath,
+                    totalFilesScanned: output.filesScanned,
+                    matchingFiles: output.matchingFiles,
+                    filesWithReqs: output.modules.length,
+                    timeTaken: new Date().valueOf() - startingTime,
                     results: output.modules
                 });
             } else {
-                return resolve(output.modules);
+                return resolve({
+                    totalFilesScanned: output.filesScanned,
+                    matchingFiles: output.matchingFiles,
+                    filesWithReqs: output.modules.length,
+                    timeTaken: new Date().valueOf() - startingTime,
+                    results: output.modules
+                });
             };
         });
     });
@@ -93,7 +114,7 @@ module.exports = (folder, options) => {
 function verifyOptions(options) {
     const finalObj = {};
 
-    finalObj.outputToFile = options.outputToFile ? options.outputToFile : true;
+    finalObj.outputToFile = options.outputToFile == false ? options.outputToFile : true;
 
     finalObj.outputLocation = options.outputLocation ? path.resolve(options.outputLocation) : path.resolve("./");
 
@@ -107,15 +128,13 @@ function verifyOptions(options) {
 };
 
 function verifyFileType(input, types) {
-    var valid = false;
-
     for (const type of types) {
         if (input.endsWith(type)) {
-            valid = true;
+            return type;
         };
     };
 
-    return valid;
+    return false;
 };
 
 function filter(input, filters) {
