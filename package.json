@@ -13,5 +13,14 @@
     "fs": "0.0.1-security",
     "klaw": "^3.0.0",
     "path": "^0.12.7"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/APartOfMe1/list-requirements.git"
+  },
+  "bugs": {
+    "url": "https://github.com/APartOfMe1/list-requirements/issues"
+  },
+  "homepage": "https://github.com/APartOfMe1/list-requirements#readme"
 }
