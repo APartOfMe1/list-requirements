@@ -15,8 +15,6 @@ module.exports = (folder, options) => {
 
         options = verifyOptions(options);
 
-        console.log(options);
-
         const output = {};
 
         output.modules = [];
