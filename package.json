@@ -9,7 +9,6 @@
   "author": "APartOfMe",
   "license": "ISC",
   "dependencies": {
-    "events": "^3.3.0",
     "fs": "0.0.1-security",
     "klaw": "^3.0.0",
     "path": "^0.12.7"
