@@ -29,7 +29,7 @@ module.exports = (folder, options) => {
 
             //Make sure the file is a type we want to check
             const fileType = verifyFileType(c.path, options.fileTypes);
-            
+
             if (!fileType) {
                 return;
             };
@@ -66,14 +66,16 @@ module.exports = (folder, options) => {
                     if (RegExp(/\.\.\/|\.\//g).test(req)) {
                         if (options.allowLocalReqs === true) {
                             if (filter(req, options.filters)) {
-                                cmdObj.requirements.push(req);
+                                //If the req includes a slash, split it and take the first bit
+                                cmdObj.requirements.push(req.split(/\/|\\/g)[0]);
                             };
                         } else {
                             continue;
                         };
                     } else {
                         if (filter(req, options.filters)) {
-                            cmdObj.requirements.push(req);
+                            //If the req includes a slash, split it and take the first bit
+                            cmdObj.requirements.push(req.split(/\/|\\/g)[0]);
                         };
                     };
                 };
@@ -83,27 +85,28 @@ module.exports = (folder, options) => {
                 output.modules.push(cmdObj);
             };
         }).on('end', () => {
+            const res = {
+                totalFilesScanned: output.filesScanned,
+                matchingFiles: output.matchingFiles,
+                filesWithReqs: output.modules.length,
+                timeTaken: new Date().valueOf() - startingTime,
+                modules: output.modules
+            };
+
             if (options.outputToFile) {
                 const outputPath = path.resolve(options.outputLocation + "/requirements.json");
 
-                fs.writeFileSync(outputPath, JSON.stringify(output));
-
-                return resolve({
+                //Add output path to the beginning of the object, because I think it looks slightly better
+                const objWithFIle = {
                     outputPath: outputPath,
-                    totalFilesScanned: output.filesScanned,
-                    matchingFiles: output.matchingFiles,
-                    filesWithReqs: output.modules.length,
-                    timeTaken: new Date().valueOf() - startingTime,
-                    results: output.modules
-                });
+                    ...res
+                };
+
+                fs.writeFileSync(outputPath, JSON.stringify(objWithFIle));
+
+                return resolve(objWithFIle);
             } else {
-                return resolve({
-                    totalFilesScanned: output.filesScanned,
-                    matchingFiles: output.matchingFiles,
-                    filesWithReqs: output.modules.length,
-                    timeTaken: new Date().valueOf() - startingTime,
-                    results: output.modules
-                });
+                return resolve(res);
             };
         });
     });
