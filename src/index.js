@@ -6,7 +6,7 @@ module.exports = (folder, options) => {
     return new Promise((resolve, reject) => {
         if (!folder) {
             return reject("There was no input folder specified");
-        }; 
+        };
 
         const startingTime = new Date().valueOf();
 
