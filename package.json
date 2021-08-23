@@ -18,6 +18,11 @@
     "type": "git",
     "url": "git+https://github.com/APartOfMe1/list-requirements.git"
   },
+  "keywords": [
+    "requirements",
+    "list",
+    "node"
+  ],
   "bugs": {
     "url": "https://github.com/APartOfMe1/list-requirements/issues"
   },
